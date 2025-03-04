@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  password       String
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  favorites      Favorite[]
+  createdSessions GameSession[] @relation("createdBy")
+  participatedSessions UserGameSession[]
+}
+
+model Card {
+  id           String    @id @default(uuid())
+  type         String    // "dare" or "question"
+  content      String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  favorites    Favorite[]
+}
+
+model Favorite {
+  id        String    @id @default(uuid())
+  userId    String
+  cardId    String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  card      Card      @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+}
+
+model GameSession {
+  id          String    @id @default(uuid())
+  name        String
+  creatorId   String
+  joinCode    String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  creator     User      @relation("createdBy", fields: [creatorId], references: [id], onDelete: Cascade)
+  participants UserGameSession[]
+}
+
+model UserGameSession {
+  id           String      @id @default(uuid())
+  userId       String
+  sessionId    String
+  joinedAt     DateTime    @default(now())
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameSession  GameSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, sessionId])
+} 
