@@ -1,20 +1,30 @@
 'use client';
 
 import { useAuth } from '@/lib/auth/auth-context';
-import { useState } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { FaGoogle } from 'react-icons/fa';
 
 export default function LoginForm() {
   const { signIn, isLoading, user } = useAuth();
   const [isSigningIn, setIsSigningIn] = useState(false);
+  const searchParams = useSearchParams();
+  const returnUrl = searchParams.get('returnUrl');
+
+  // If user is logged in and there's a returnUrl, redirect them
+  useEffect(() => {
+    if (user && returnUrl) {
+      window.location.href = returnUrl;
+    }
+  }, [user, returnUrl]);
 
   const handleGoogleSignIn = async () => {
     if (isSigningIn) return;
 
     try {
       setIsSigningIn(true);
-      await signIn('google');
+      await signIn('google', returnUrl);
     } catch (error) {
       console.error('Error signing in with Google:', error);
       toast.error('Failed to sign in with Google');
@@ -27,6 +37,11 @@ export default function LoginForm() {
       <div className="bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 text-gray-800 dark:text-white text-center">
         <p className="mb-2">Signed in as:</p>
         <p className="font-bold">{user.email}</p>
+        {returnUrl && (
+          <p className="mt-4 text-sm text-gray-600 dark:text-gray-400">
+            Redirecting you back...
+          </p>
+        )}
       </div>
     );
   }

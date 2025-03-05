@@ -48,7 +48,31 @@ export async function middleware(request: NextRequest) {
   );
 
   // Refresh session if needed
-  await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
+
+  // Check if the route requires authentication
+  const url = new URL(request.url);
+  const isProtectedRoute = 
+    url.pathname.startsWith('/game/create') || 
+    url.pathname.startsWith('/favorites') ||
+    url.pathname.startsWith('/profile');
+
+  // Check if favoriting a card as anonymous user
+  const isFavoritingCard = url.pathname.startsWith('/api/favorites/add') && !session;
+  
+  if (isFavoritingCard) {
+    // Store the current URL to redirect back after auth
+    const redirectBackUrl = request.headers.get('referer') || '/';
+    
+    // Redirect to login with return URL in query params
+    return NextResponse.redirect(new URL(`/auth/login?returnUrl=${encodeURIComponent(redirectBackUrl)}`, request.url));
+  }
+
+  // For protected routes, check if user is authenticated
+  if (isProtectedRoute && !session) {
+    // Redirect to login with return URL
+    return NextResponse.redirect(new URL(`/auth/login?returnUrl=${encodeURIComponent(url.pathname)}`, request.url));
+  }
 
   return response;
 }
@@ -63,6 +87,7 @@ export const config = {
      * - public (public files)
      * - api routes that don't require authentication
      */
-    '/((?!_next/static|_next/image|favicon.ico|public|api/webhook).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
+    '/api/favorites/:path*',
   ],
 }; 

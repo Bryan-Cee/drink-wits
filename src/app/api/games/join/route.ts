@@ -1,64 +1,81 @@
-import { prisma } from '@/lib/db/prisma';
-import { type NextRequest, NextResponse } from 'next/server';
+import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 // POST /api/games/join - Join a game with a join code
-export async function POST(req: NextRequest) {
-  // For joining, we don't require authentication
+export async function POST(request: NextRequest) {
   try {
-    const { joinCode, playerName, userId } = await req.json();
-
-    if (!joinCode) {
-      return NextResponse.json({ error: 'Join code is required' }, { status: 400 });
+    const supabase = await createServerSupabaseClient();
+    
+    // Get the join code and player name from the request body
+    const { joinCode, playerName } = await request.json();
+    
+    if (!joinCode || !playerName) {
+      return NextResponse.json(
+        { error: 'Join code and player name are required' },
+        { status: 400 }
+      );
     }
-
-    if (!playerName) {
-      return NextResponse.json({ error: 'Player name is required' }, { status: 400 });
+    
+    // Get the user's session (if they're logged in)
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    // Find the game by join code
+    const { data: game, error: gameError } = await supabase
+      .from('games')
+      .select('id, name, status')
+      .eq('join_code', joinCode)
+      .single();
+    
+    if (gameError) {
+      return NextResponse.json(
+        { error: 'Game not found' },
+        { status: 404 }
+      );
     }
-
-    // Find the game session
-    const gameSession = await prisma.gameSession.findUnique({
-      where: {
-        joinCode,
-      },
-    });
-
-    if (!gameSession) {
-      return NextResponse.json({ error: 'Game not found' }, { status: 404 });
+    
+    if (game.status === 'completed') {
+      return NextResponse.json(
+        { error: 'This game has already ended' },
+        { status: 400 }
+      );
     }
-
-    // If userId is provided (user is logged in), add them to the game
-    if (userId) {
-      // Check if user already joined
-      const existingParticipant = await prisma.userGameSession.findUnique({
-        where: {
-          userId_sessionId: {
-            userId,
-            sessionId: gameSession.id,
-          },
-        },
-      });
-
-      if (!existingParticipant) {
-        // Add user to participants
-        await prisma.userGameSession.create({
-          data: {
-            userId,
-            sessionId: gameSession.id,
-          },
-        });
-      }
+    
+    // Create a player record
+    const { data: player, error: playerError } = await supabase
+      .from('players')
+      .insert([
+        {
+          game_id: game.id,
+          name: playerName,
+          user_id: session?.user?.id || null, // Link to user if logged in
+          is_anonymous: !session,
+          joined_at: new Date().toISOString(),
+          status: 'active'
+        }
+      ])
+      .select()
+      .single();
+    
+    if (playerError) {
+      console.error('Error adding player:', playerError);
+      return NextResponse.json(
+        { error: 'Failed to join game' },
+        { status: 500 }
+      );
     }
-
-    // For guest users, we would handle differently in a real app
-    // Maybe use session storage or cookies to track players
-
+    
     return NextResponse.json({
-      gameId: gameSession.id,
-      gameName: gameSession.name,
-      joinedAs: playerName,
+      success: true,
+      message: 'Successfully joined game',
+      gameId: game.id,
+      playerId: player.id
     });
+    
   } catch (error) {
     console.error('Error joining game:', error);
-    return NextResponse.json({ error: 'Failed to join game' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
