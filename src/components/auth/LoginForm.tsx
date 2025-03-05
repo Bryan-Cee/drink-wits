@@ -10,19 +10,21 @@ export default function LoginForm() {
   const [isSigningIn, setIsSigningIn] = useState(false);
 
   const handleGoogleSignIn = async () => {
+    if (isSigningIn) return;
+    
     try {
       setIsSigningIn(true);
       await signIn('google');
     } catch (error) {
       console.error('Error signing in with Google:', error);
       toast.error('Failed to sign in with Google');
-      setIsSigningIn(false); // Reset state on error only
+      setIsSigningIn(false);
     }
   };
 
   if (user) {
     return (
-      <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-white text-center">
+      <div className="bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-xl p-6 text-gray-800 dark:text-white text-center">
         <p className="mb-2">Signed in as:</p>
         <p className="font-bold">{user.email}</p>
       </div>
@@ -30,27 +32,30 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">Sign In</h2>
+    <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center">Sign in with</h2>
       
       <div className="space-y-4">
         <button
           onClick={handleGoogleSignIn}
-          disabled={isLoading || isSigningIn}
-          className="w-full flex justify-center items-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isSigningIn}
+          className="w-full flex justify-center items-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-gray-700 dark:text-white bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSigningIn ? (
-            'Connecting...'
+            'Connecting to Google...'
           ) : (
             <>
-              <FaGoogle className="mr-2 text-red-500" />
+              <FaGoogle className="mr-3 text-red-500" />
               Continue with Google
             </>
           )}
         </button>
         
+        {/* Note: To add more providers, you'll need to update the auth-context.tsx file 
+            to support additional OAuth providers like GitHub and Facebook */}
+        
         {isLoading && (
-          <div className="text-center text-gray-500">
+          <div className="text-center text-gray-500 dark:text-gray-400 mt-4">
             <p>Checking authentication status...</p>
           </div>
         )}

@@ -2,9 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import AuthForm from '@/components/auth/AuthForm';
-import { FaArrowLeft } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
@@ -35,19 +33,14 @@ export default function RegisterPage() {
   };
   
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="mb-6">
-        <Link href="/" className="inline-flex items-center text-white hover:text-white/70">
-          <FaArrowLeft className="mr-2" />
-          Back to Home
-        </Link>
+    <div className="container mx-auto px-4 pt-24 pb-12 min-h-screen flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <AuthForm 
+          mode={mode} 
+          onSubmit={handleSubmit} 
+          switchMode={switchMode} 
+        />
       </div>
-      
-      <AuthForm 
-        mode={mode} 
-        onSubmit={handleSubmit} 
-        switchMode={switchMode} 
-      />
     </div>
   );
 } 
