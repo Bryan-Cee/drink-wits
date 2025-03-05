@@ -7,4 +7,4 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.error('Supabase credentials are not configured properly.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey); 
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
