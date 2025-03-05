@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { FaGoogle } from 'react-icons/fa';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaGoogle } from 'react-icons/fa';
 
 export default function LoginForm() {
   const { signIn, isLoading, user } = useAuth();
@@ -11,7 +11,7 @@ export default function LoginForm() {
 
   const handleGoogleSignIn = async () => {
     if (isSigningIn) return;
-    
+
     try {
       setIsSigningIn(true);
       await signIn('google');
@@ -33,8 +33,10 @@ export default function LoginForm() {
 
   return (
     <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center">Sign in with</h2>
-      
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-8 text-center">
+        Sign in with
+      </h2>
+
       <div className="space-y-4">
         <button
           onClick={handleGoogleSignIn}
@@ -50,10 +52,10 @@ export default function LoginForm() {
             </>
           )}
         </button>
-        
+
         {/* Note: To add more providers, you'll need to update the auth-context.tsx file 
             to support additional OAuth providers like GitHub and Facebook */}
-        
+
         {isLoading && (
           <div className="text-center text-gray-500 dark:text-gray-400 mt-4">
             <p>Checking authentication status...</p>
@@ -62,4 +64,4 @@ export default function LoginForm() {
       </div>
     </div>
   );
-} 
+}

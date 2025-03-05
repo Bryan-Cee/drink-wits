@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-import { FaKey, FaUser, FaArrowRight } from 'react-icons/fa';
-import toast from 'react-hot-toast';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
 import { joinGameSchema } from '@/lib/validation/join-game-schema';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { FaArrowRight, FaKey, FaUser } from 'react-icons/fa';
 
 interface JoinGameFormProps {
   onJoinGame: (joinCode: string, playerName: string) => Promise<void>;
@@ -17,17 +17,17 @@ type FormValues = {
 };
 
 export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
-  const { 
-    register, 
-    handleSubmit, 
-    setValue, 
-    formState: { errors, isSubmitting } 
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: yupResolver(joinGameSchema),
     defaultValues: {
       joinCode: '',
       playerName: '',
-    }
+    },
   });
 
   // Check if there's a join code in the URL
@@ -54,10 +54,13 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
   return (
     <div className="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">Join a Game</h2>
-      
+
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
-          <label htmlFor="joinCode" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="joinCode"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Join Code
           </label>
           <div className="relative">
@@ -76,9 +79,12 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
             <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.joinCode.message}</p>
           )}
         </div>
-        
+
         <div>
-          <label htmlFor="playerName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="playerName"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Your Name
           </label>
           <div className="relative">
@@ -94,10 +100,12 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
             />
           </div>
           {errors.playerName && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.playerName.message}</p>
+            <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+              {errors.playerName.message}
+            </p>
           )}
         </div>
-        
+
         <div>
           <button
             type="submit"
@@ -117,4 +125,4 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
       </form>
     </div>
   );
-} 
+}

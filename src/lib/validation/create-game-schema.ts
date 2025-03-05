@@ -17,10 +17,10 @@ export const createGameSchema = yup.object({
     )
     .required('Players are required')
     .min(1, 'At least one player is required')
-    .max(10, 'Maximum 10 players allowed')
+    .max(10, 'Maximum 10 players allowed'),
 });
 
 export type CreateGameFormValues = {
   gameName: string;
   players: string[];
-}; 
+};
