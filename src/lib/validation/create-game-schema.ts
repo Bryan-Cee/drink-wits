@@ -10,10 +10,13 @@ export const createGameSchema = yup.object({
     .array()
     .of(
       yup
-        .string()
-        .required('Player name is required')
-        .min(2, 'Player name must be at least 2 characters')
-        .max(20, 'Player name must not exceed 20 characters')
+        .object({
+          name: yup
+            .string()
+            .required('Player name is required')
+            .min(2, 'Player name must be at least 2 characters')
+            .max(20, 'Player name must not exceed 20 characters'),
+        })
     )
     .required('Players are required')
     .min(1, 'At least one player is required')
@@ -22,5 +25,5 @@ export const createGameSchema = yup.object({
 
 export type CreateGameFormValues = {
   gameName: string;
-  players: string[];
+  players: { name: string }[];
 };

@@ -1,15 +1,21 @@
-'use client';
+"use client";
 
-import { type CreateGameFormValues, createGameSchema } from '@/lib/validation/create-game-schema';
-import { yupResolver } from '@hookform/resolvers/yup';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { type FieldArrayPath, useFieldArray, useForm } from 'react-hook-form';
-import { FaCheck, FaCopy, FaPlus, FaTrash } from 'react-icons/fa';
-import { toast } from 'sonner';
+import { useState } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { FaTrash, FaPlus, FaCopy, FaCheck } from "react-icons/fa";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import {
+  createGameSchema,
+  CreateGameFormValues,
+} from "@/lib/validation/create-game-schema";
 
 interface CreateGameFormProps {
-  onCreateGame: (gameName: string, players: string[]) => Promise<{ joinCode: string }>;
+  onCreateGame: (
+    gameName: string,
+    players: { name: string }[]
+  ) => Promise<{ joinCode: string }>;
 }
 
 export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
@@ -26,40 +32,41 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
   } = useForm<CreateGameFormValues>({
     resolver: yupResolver(createGameSchema),
     defaultValues: {
-      gameName: '',
-      players: [''],
+      gameName: "",
+      players: [{ name: "" }],
     },
   });
 
-  // Use the correct typing for useFieldArray
   const { fields, append, remove } = useFieldArray({
     control,
-    name: 'players' as FieldArrayPath<CreateGameFormValues>,
+    name: "players",
   });
 
   const onSubmit = async (data: CreateGameFormValues) => {
     try {
       setIsCreating(true);
       // Filter out empty player names
-      const filteredPlayers = data.players.filter((player) => player.trim() !== '');
+      const filteredPlayers = data.players.filter(
+        (player) => player.name.trim() !== ""
+      );
 
       if (filteredPlayers.length === 0) {
-        toast.error('At least one player is required');
+        toast.error("At least one player is required");
         setIsCreating(false);
         return;
       }
 
-      const result = await onCreateGame(data.gameName, filteredPlayers);
+      const result = await onCreateGame(data.gameName, filteredPlayers.map((player) => player.name));
       setJoinCode(result.joinCode);
 
       // Store the first player name in session storage for game navigation
       if (filteredPlayers.length > 0) {
-        sessionStorage.setItem('playerName', filteredPlayers[0]);
+        sessionStorage.setItem("playerName", filteredPlayers[0].name);
       }
 
-      toast.success('Game created successfully!');
+      toast.success("Game created successfully!");
     } catch (error) {
-      toast.error('Failed to create game');
+      toast.error("Failed to create game");
       console.error(error);
     } finally {
       setIsCreating(false);
@@ -72,7 +79,7 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
     const url = `${window.location.origin}/game/join?code=${joinCode}`;
     navigator.clipboard.writeText(url);
     setCopied(true);
-    toast.success('Join link copied to clipboard!');
+    toast.success("Join link copied to clipboard!"); // This toast is not working
 
     setTimeout(() => {
       setCopied(false);
@@ -93,7 +100,6 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
               onClick={copyJoinLink}
               className="ml-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
               aria-label="Copy join link"
-              type="button"
             >
               {copied ? <FaCheck /> : <FaCopy />}
             </button>
@@ -101,11 +107,15 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
           <div className="flex justify-between">
             <button
               onClick={() => {
-                const playerName = sessionStorage.getItem('playerName') || 'Anonymous';
-                router.push(`/game/play?code=${joinCode}&player=${encodeURIComponent(playerName)}`);
+                const playerName =
+                  sessionStorage.getItem("playerName") || "Anonymous";
+                router.push(
+                  `/game/play?code=${joinCode}&player=${encodeURIComponent(
+                    playerName
+                  )}`
+                );
               }}
               className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"
-              type="button"
             >
               Start Game
             </button>
@@ -117,57 +127,81 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
           className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
         >
           <div className="mb-4">
-            <label htmlFor="gameName" className="block text-sm font-medium mb-1">
+            <label
+              htmlFor="gameName"
+              className="block text-sm font-medium mb-1"
+            >
               Game Name
             </label>
             <input
               id="gameName"
-              {...register('gameName')}
+              {...register("gameName")}
               className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter game name"
             />
             {errors.gameName && (
-              <p className="text-red-500 text-sm mt-1">{errors.gameName.message}</p>
+              <p className="text-red-500 text-sm mt-1">
+                {errors.gameName.message}
+              </p>
             )}
           </div>
 
           <div className="mb-4">
             <label className="block text-sm font-medium mb-2">Players</label>
             {fields.map((field, index) => (
-              <div key={field.id} className="flex mb-2">
-                <input
-                  {...register(`players.${index}`)}
-                  placeholder={`Player ${index + 1}`}
-                  className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <button
-                  type="button"
-                  onClick={() => remove(index)}
-                  className="ml-2 p-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                  aria-label={`Remove player ${index + 1}`}
-                >
-                  <FaTrash />
-                </button>
+              <div key={field.id}>
+                <div className="flex mb-2">
+                  <input
+                    {...register(`players.${index}.name`)}
+                    placeholder={`Player ${index + 1}`}
+                    className="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => remove(index)}
+                    disabled={fields.length <= 1}
+                    className={`ml-2 p-2 rounded ${
+                      fields.length <= 1
+                        ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
+                        : "bg-red-500 text-white hover:bg-red-600"
+                    } transition-colors`}
+                    aria-label="Remove player"
+                  >
+                    <FaTrash />
+                  </button>
+                </div>
+                {errors?.players?.[index]?.name?.message && (
+                  <p className="text-red-500 text-sm mb-2">
+                    {errors.players[index]?.name?.message}
+                  </p>
+                )}
               </div>
             ))}
+
             <button
               type="button"
-              onClick={() => append('')}
-              className="w-full p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              onClick={() => append({ name: "" })}
+              disabled={fields.length >= 10}
+              className={`flex items-center text-sm ${
+                fields.length >= 10
+                  ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                  : "text-blue-500 hover:text-blue-700"
+              }`}
             >
-              <FaPlus /> Add Player
+              <FaPlus className="mr-1" />
+              Add Player
             </button>
           </div>
 
           <button
             type="submit"
             disabled={isCreating}
-            className="w-full p-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:bg-gray-400"
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            {isCreating ? 'Creating...' : 'Create Game'}
+            {isCreating ? "Creating..." : "Create Game"}
           </button>
         </form>
       )}
     </div>
   );
-} 
+}
