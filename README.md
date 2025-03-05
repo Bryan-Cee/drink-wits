@@ -11,6 +11,12 @@ A Tinder-style drinking game web application built with Next.js, where players c
 - Game session creation with shareable join links
 - Multiple players can join a game session
 - View popular cards among other players
+- **Progressive Web App (PWA) capabilities**:
+  - Offline support
+  - Install to home screen
+  - Fast loading times with caching
+  - Smooth page transitions
+  - Network status detection
 
 ## Tech Stack
 
@@ -20,6 +26,7 @@ A Tinder-style drinking game web application built with Next.js, where players c
 - **Authentication**: NextAuth.js
 - **UI Components**: Custom components with Tailwind CSS
 - **Animations**: Framer Motion for card swiping
+- **PWA**: next-pwa with service worker and manifest
 
 ## Getting Started
 
@@ -52,12 +59,40 @@ A Tinder-style drinking game web application built with Next.js, where players c
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
+## Progressive Web App (PWA)
+
+This application is configured as a Progressive Web App, providing several benefits:
+
+### PWA Features
+- **Offline Support**: Basic app functionality works without an internet connection
+- **Installable**: Can be added to home screen on mobile devices and desktops
+- **Fast Loading**: Service worker caches assets for faster subsequent loads
+- **Network Detection**: Shows an indicator when the app is offline
+- **Smooth Transitions**: Page transitions are animated for a better user experience
+
+### PWA Setup
+Before deploying to production:
+1. Generate all required icons in the `/public/icons` directory (see `/public/icons/README.md` for details)
+2. Test the service worker functionality in production mode
+3. Verify the manifest.json configuration matches your app requirements
+
+### Testing PWA Features
+To test PWA features locally:
+1. Build the application: `npm run build`
+2. Start the production server: `npm start`
+3. Open in a supported browser and use DevTools to verify service worker registration
+4. Test offline functionality by turning off network in DevTools
+
 ## Project Structure
 
 ```
 drink-wits/
 ├── prisma/                # Database schema and migrations
 ├── public/                # Static assets
+│   ├── icons/             # PWA icons
+│   ├── manifest.json      # PWA manifest
+│   ├── sw.js              # Service worker
+│   └── register-sw.js     # Service worker registration
 ├── src/
 │   ├── app/               # Next.js App Router
 │   │   ├── api/           # API routes
