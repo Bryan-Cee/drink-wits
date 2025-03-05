@@ -1,23 +1,23 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import JoinGameForm from '@/components/game/JoinGameForm';
-import { FaArrowLeft } from 'react-icons/fa';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import toast from 'react-hot-toast';
+import { FaArrowLeft } from 'react-icons/fa';
 
 export default function JoinGamePage() {
   const router = useRouter();
-  
+
   const handleJoinGame = async (joinCode: string, playerName: string) => {
     try {
       // In a real app, we would make an API call to join the game
       // For now, we'll just simulate it
-      
+
       // Wait a bit to simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       // Redirect to the game page
       router.push(`/game/play?code=${joinCode}&player=${encodeURIComponent(playerName)}`);
     } catch (error) {
@@ -26,7 +26,7 @@ export default function JoinGamePage() {
       throw error;
     }
   };
-  
+
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mb-6">
@@ -35,8 +35,8 @@ export default function JoinGamePage() {
           Back to Home
         </Link>
       </div>
-      
+
       <JoinGameForm onJoinGame={handleJoinGame} />
     </div>
   );
-} 
+}

@@ -10,31 +10,42 @@ export default function AboutPage() {
           Back to Home
         </Link>
       </div>
-      
+
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-8">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">About Drink Wits</h1>
-        
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Our Story</h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
-            Drink Wits was created to bring friends together for memorable social experiences. Our game combines the best elements of traditional drinking games with modern social interactions, creating a unique platform for friends to connect, laugh, and create memories together.
+            Drink Wits was created to bring friends together for memorable social experiences. Our
+            game combines the best elements of traditional drinking games with modern social
+            interactions, creating a unique platform for friends to connect, laugh, and create
+            memories together.
           </p>
           <p className="text-gray-600 dark:text-gray-300">
-            The concept was born out of countless social gatherings where we noticed that the most memorable moments came from shared experiences that pushed people slightly out of their comfort zones while maintaining a fun, safe environment.
+            The concept was born out of countless social gatherings where we noticed that the most
+            memorable moments came from shared experiences that pushed people slightly out of their
+            comfort zones while maintaining a fun, safe environment.
           </p>
         </section>
-        
+
         <section className="mb-8">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Our Mission</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            At Drink Wits, our mission is to facilitate meaningful social connections through entertaining and responsible gameplay. We believe that social drinking games can be fun and engaging while also promoting responsible drinking habits.
+            At Drink Wits, our mission is to facilitate meaningful social connections through
+            entertaining and responsible gameplay. We believe that social drinking games can be fun
+            and engaging while also promoting responsible drinking habits.
           </p>
         </section>
-        
+
         <section className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Responsible Play</h2>
+          <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
+            Responsible Play
+          </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-4">
-            We strongly advocate for responsible drinking and gameplay. Drink Wits is designed for adults of legal drinking age and should always be played in a safe environment. Players should:
+            We strongly advocate for responsible drinking and gameplay. Drink Wits is designed for
+            adults of legal drinking age and should always be played in a safe environment. Players
+            should:
           </p>
           <ul className="list-disc pl-6 text-gray-600 dark:text-gray-300 space-y-2">
             <li>Know their limits and drink responsibly</li>
@@ -44,14 +55,15 @@ export default function AboutPage() {
             <li>Consider using non-alcoholic alternatives if preferred</li>
           </ul>
         </section>
-        
+
         <section>
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">Contact Us</h2>
           <p className="text-gray-600 dark:text-gray-300">
-            If you have any questions, feedback, or concerns about Drink Wits, please don't hesitate to reach out to us at support@drinkwits.com.
+            If you have any questions, feedback, or concerns about Drink Wits, please don't hesitate
+            to reach out to us at support@drinkwits.com.
           </p>
         </section>
       </div>
     </div>
   );
-} 
+}
