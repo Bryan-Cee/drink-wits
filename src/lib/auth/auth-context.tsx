@@ -1,8 +1,8 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/client';
+import type { Session, User } from '@supabase/supabase-js';
+import { type ReactNode, createContext, useContext, useEffect, useState } from 'react';
 
 type AuthContextType = {
   user: User | null;
@@ -22,7 +22,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Initial session check
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
       setIsLoading(false);
@@ -31,14 +33,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkSession();
 
     // Listen for auth state changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log(`Supabase auth event: ${event}`);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log(`Supabase auth event: ${event}`);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
@@ -79,11 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useAuth = () => {
@@ -92,4 +90,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

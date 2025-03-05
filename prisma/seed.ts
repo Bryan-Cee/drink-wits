@@ -26,7 +26,8 @@ const cards = [
   },
   {
     type: 'question',
-    content: 'If you could only drink one type of alcohol for the rest of your life, what would it be?',
+    content:
+      'If you could only drink one type of alcohol for the rest of your life, what would it be?',
   },
   {
     type: 'dare',
@@ -48,14 +49,14 @@ const cards = [
 
 async function main() {
   console.log('Starting to seed database...');
-  
+
   // Create cards
   for (const card of cards) {
     await prisma.card.create({
       data: card,
     });
   }
-  
+
   // Create a test user
   const user = await prisma.user.create({
     data: {
@@ -64,7 +65,7 @@ async function main() {
       password: 'password123', // In a real app, this would be hashed
     },
   });
-  
+
   console.log('Database seeded successfully!');
   console.log(`Created ${cards.length} cards`);
   console.log(`Created test user with email: ${user.email}`);
@@ -81,4 +82,4 @@ main()
     console.error('Error seeding database:', e);
     await prisma.$disconnect();
     process.exit(1);
-  }); 
+  });

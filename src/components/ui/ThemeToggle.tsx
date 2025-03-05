@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useTheme } from "@/lib/theme/theme-context";
-import { FaSun, FaMoon } from "react-icons/fa";
+import { useTheme } from '@/lib/theme/theme-context';
+import { FaMoon, FaSun } from 'react-icons/fa';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
-  
+
   return (
     <button
       onClick={toggleTheme}
@@ -19,4 +19,4 @@ export default function ThemeToggle() {
       )}
     </button>
   );
-} 
+}

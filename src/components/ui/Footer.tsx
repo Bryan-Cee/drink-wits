@@ -1,16 +1,16 @@
 'use client';
 
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 
 // Dynamically import the reset component to avoid hydration issues
 const AgeVerificationReset = dynamic(() => import('./AgeVerificationReset'), {
-  ssr: false
+  ssr: false,
 });
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  
+
   return (
     <footer className="bg-gray-900 text-gray-400 py-6">
       <div className="container mx-auto px-4">
@@ -20,7 +20,7 @@ export default function Footer() {
               © {currentYear} Drink Wits - Play Responsibly <AgeVerificationReset />
             </p>
           </div>
-          
+
           <div className="flex flex-wrap gap-6 text-sm">
             <Link href="/" className="hover:text-white transition-colors">
               Home
@@ -39,4 +39,4 @@ export default function Footer() {
       </div>
     </footer>
   );
-} 
+}
