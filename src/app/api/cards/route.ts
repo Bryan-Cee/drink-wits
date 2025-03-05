@@ -1,5 +1,5 @@
-import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { NextResponse } from 'next/server';
 
 // GET /api/cards
 export async function GET() {
@@ -12,9 +12,9 @@ export async function GET() {
     });
 
     console.log(`API: Found ${cards.length} cards in database`);
-    
+
     // Return cards with a computed isFavorite field (would be checked against the user in a real app)
-    const formattedCards = cards.map(card => ({
+    const formattedCards = cards.map((card) => ({
       id: card.id,
       type: card.type,
       content: card.content,
@@ -26,9 +26,6 @@ export async function GET() {
     return NextResponse.json(formattedCards);
   } catch (error) {
     console.error('Error fetching cards:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch cards' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch cards' }, { status: 500 });
   }
-} 
+}
