@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import GameCard from './GameCard';
-import { FaUndo, FaForward, FaUsers } from 'react-icons/fa';
+import { FaUndo, FaForward, FaUsers, FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import toast from 'react-hot-toast';
 import { useGameStore } from '@/lib/store/game-store';
 import { useSearchParams } from 'next/navigation';
@@ -11,6 +11,12 @@ interface Card {
   type: 'dare' | 'question';
   content: string;
   isFavorite: boolean;
+}
+
+// Adding proper type for players
+interface Player {
+  name: string;
+  connected: boolean;
 }
 
 interface CardDeckProps {
@@ -160,7 +166,7 @@ export default function CardDeck({ cards: initialCards, onFavoriteCard, isUserLo
   if (!cards || cards.length === 0) {
     return (
       <div className="relative w-full h-full flex flex-col items-center justify-center">
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 text-white text-center">
+        <div className="bg-white/10 dark:bg-black/10 backdrop-blur-sm rounded-xl p-8 text-gray-800 dark:text-white text-center">
           <h3 className="text-2xl font-bold mb-4">No cards available</h3>
           <p>Please try again later or create a new game.</p>
         </div>
@@ -171,18 +177,54 @@ export default function CardDeck({ cards: initialCards, onFavoriteCard, isUserLo
   return (
     <div className="relative w-full h-full flex flex-col">
       <div className="relative flex-1 w-full max-w-md mx-auto">
+        {/* Connection status */}
+        <div className="absolute top-0 right-0 z-10 p-2">
+          <div className={`flex items-center rounded-full px-3 py-1 text-xs ${
+            isConnected 
+              ? "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100" 
+              : "bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-100"
+          }`}>
+            <div className={`w-2 h-2 rounded-full mr-1 ${
+              isConnected ? "bg-green-500" : "bg-red-500"
+            }`}></div>
+            {isConnected ? "Connected" : "Disconnected"}
+          </div>
+        </div>
+        
+        {/* Players panel button */}
+        <button 
+          onClick={togglePlayersPanel}
+          className="absolute top-0 left-0 z-10 p-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
+          aria-label={showPlayers ? "Hide players" : "Show players"}
+        >
+          <FaUsers size={20} />
+        </button>
+        
+        {/* Players panel */}
+        {showPlayers && (
+          <div className="absolute top-10 left-0 z-10 bg-white dark:bg-gray-800 rounded-md shadow-md p-3 text-sm border dark:border-gray-700 w-48">
+            <h4 className="font-bold mb-2 text-gray-900 dark:text-white">Players ({players.length})</h4>
+            <ul className="space-y-1">
+              {players.map((player, idx) => (
+                <li key={idx} className="flex items-center text-gray-800 dark:text-gray-200">
+                  <div className="w-2 h-2 rounded-full mr-2 bg-green-500"></div>
+                  {player}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        
         {/* Card stack */}
-        <div className="relative w-full h-[400px] min-h-[400px]">
+        <div className="relative mt-[50px] w-full h-[400px] min-h-[400px]">
           <AnimatePresence>
             {currentCardIndex < cards.length && (
               <GameCard
                 key={cards[currentCardIndex].id}
                 id={cards[currentCardIndex].id}
-                type={cards[currentCardIndex].type}
                 content={cards[currentCardIndex].content}
-                isFavorite={cards[currentCardIndex].isFavorite}
                 onSwipe={handleSwipe}
-                onFavorite={handleFavorite}
+                isFavorited={cards[currentCardIndex].isFavorite}
               />
             )}
           </AnimatePresence>
@@ -205,25 +247,23 @@ export default function CardDeck({ cards: initialCards, onFavoriteCard, isUserLo
       </div>
       
       {/* Controls */}
-      <div className="mt-8 flex justify-center gap-8">
-        <button
-          onClick={undoCard}
-          disabled={currentCardIndex === 0}
-          className={`p-4 rounded-full bg-white/10 backdrop-blur-sm ${
-            currentCardIndex === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
-          }`}
+      <div className="mt-8 flex justify-center items-center space-x-4">
+        <button 
+          onClick={undoCard} 
+          disabled={currentCardIndex <= 0}
+          className="p-4 rounded-full bg-white dark:bg-gray-800 shadow-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label="Previous card"
         >
-          <FaUndo className="text-white text-xl" />
+          <FaArrowLeft size={20} />
         </button>
         
-        <button
-          onClick={skipCard}
+        <button 
+          onClick={skipCard} 
           disabled={currentCardIndex >= cards.length - 1}
-          className={`p-4 rounded-full bg-white/10 backdrop-blur-sm ${
-            currentCardIndex >= cards.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/20'
-          }`}
+          className="p-4 rounded-full bg-white dark:bg-gray-800 shadow-md text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label="Next card"
         >
-          <FaForward className="text-white text-xl" />
+          <FaArrowRight size={20} />
         </button>
       </div>
       

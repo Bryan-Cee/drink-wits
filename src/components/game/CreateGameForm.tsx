@@ -33,7 +33,7 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "players",
+    name: "players" as const,
   });
 
   const onSubmit = async (data: CreateGameFormValues) => {

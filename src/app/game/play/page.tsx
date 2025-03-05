@@ -153,62 +153,16 @@ function GamePlayContent() {
   }
   // Ensure there is a warning when a player want to exit the game
   return (
-    <div className="container mx-auto px-4 py-6 min-h-screen flex flex-col">
-      <header className="flex justify-between items-center mb-8">
-        <Link
-          href="/"
-          className="inline-flex items-center text-white hover:text-white/70"
-        >
-          <FaArrowLeft className="mr-2" />
-          <span className="hidden md:block">Exit Game</span>
-        </Link>
-
+    <div className="container mx-auto px-4 py-6 min-h-full flex flex-col">
+      <header className="flex justify-center items-center mb-8">
         <div className="text-white text-center">
           <h1 className="text-xl font-bold">Game Code: {joinCode}</h1>
           <div className="flex-col justify-center items-center gap-2">
-            <div
-              className={`text-xs font-medium ${
-                isConnected
-                  ? "bg-green-500/20 text-green-300"
-                  : "bg-red-500/20 text-red-300"
-              }`}
-            >
-              {isConnected ? "Connected" : "Disconnected"}
-            </div>
             {playerName && (
               <p className="text-sm opacity-80">Playing as {playerName}</p>
             )}
           </div>
         </div>
-
-        {/* <Link href="/favorites" className="text-white hover:text-white/70">
-          <FaHeart />
-        </Link> */}
-        <button
-          onClick={togglePlayersPanel}
-          className="m-4 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20"
-        >
-          <FaUsers className="text-white" />
-        </button>
-        {showPlayers && (
-          <div className="absolute top-20 right-4 bg-white/10 backdrop-blur-md rounded-lg p-4 z-10">
-            <h3 className="text-white font-bold mb-2">
-              Players ({players.length})
-            </h3>
-            <ul className="space-y-1">
-              {players.map((player, i) => (
-                <li key={i} className="text-white text-sm">
-                  {player}
-                </li>
-              ))}
-              {players.length === 0 && (
-                <li className="text-white/50 text-sm italic">
-                  No other players
-                </li>
-              )}
-            </ul>
-          </div>
-        )}
       </header>
 
       {error && (
