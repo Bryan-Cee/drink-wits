@@ -6,6 +6,7 @@ import Link from 'next/link';
 import CardDeck from '@/components/cards/CardDeck';
 import { FaArrowLeft, FaUsers, FaHeart } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { useGameStore } from '@/lib/store/game-store';
 
 // Sample cards for demo - will be replaced with API data
 const SAMPLE_CARDS = [
@@ -49,9 +50,26 @@ const SAMPLE_CARDS = [
 
 function GamePlayContent() {
   const searchParams = useSearchParams();
-  const joinCode = searchParams.get('code');
-  const playerName = searchParams.get('player');
+  const joinCode = searchParams?.get('code');
+  const playerName = searchParams?.get('player');
   
+  // Debug logging for URL parameters
+  useEffect(() => {
+    console.log('URL Parameters:', { 
+      code: joinCode, 
+      player: playerName 
+    });
+    
+    if (!joinCode) {
+      console.error('Missing game code parameter');
+    }
+    
+    if (!playerName) {
+      console.error('Missing player name parameter');
+    }
+  }, [joinCode, playerName]);
+    const [showPlayers, setShowPlayers] = useState(false);
+  const { isConnected, players } = useGameStore();
   const [cards, setCards] = useState(SAMPLE_CARDS);
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
@@ -104,7 +122,10 @@ function GamePlayContent() {
     
     fetchCards();
   }, []);
-  
+    const togglePlayersPanel = () => {
+      setShowPlayers(!showPlayers);
+    };
+
   const handleFavoriteCard = async (cardId: string) => {
     if (!isUserLoggedIn) {
       setShowLoginPrompt(true);
@@ -130,41 +151,82 @@ function GamePlayContent() {
       </div>
     );
   }
-  
+  // Ensure there is a warning when a player want to exit the game
   return (
     <div className="container mx-auto px-4 py-6 min-h-screen flex flex-col">
       <header className="flex justify-between items-center mb-8">
-        <Link href="/" className="inline-flex items-center text-white hover:text-white/70">
+        <Link
+          href="/"
+          className="inline-flex items-center text-white hover:text-white/70"
+        >
           <FaArrowLeft className="mr-2" />
-          Exit Game
+          <span className="hidden md:block">Exit Game</span>
         </Link>
-        
+
         <div className="text-white text-center">
           <h1 className="text-xl font-bold">Game Code: {joinCode}</h1>
-          {playerName && <p className="text-sm opacity-80">Playing as {playerName}</p>}
+          <div className="flex-col justify-center items-center gap-2">
+            <div
+              className={`text-xs font-medium ${
+                isConnected
+                  ? "bg-green-500/20 text-green-300"
+                  : "bg-red-500/20 text-red-300"
+              }`}
+            >
+              {isConnected ? "Connected" : "Disconnected"}
+            </div>
+            {playerName && (
+              <p className="text-sm opacity-80">Playing as {playerName}</p>
+            )}
+          </div>
         </div>
-        
-        <Link href="/favorites" className="text-white hover:text-white/70">
+
+        {/* <Link href="/favorites" className="text-white hover:text-white/70">
           <FaHeart />
-        </Link>
+        </Link> */}
+        <button
+          onClick={togglePlayersPanel}
+          className="m-4 p-2 rounded-full bg-white/10 backdrop-blur-sm hover:bg-white/20"
+        >
+          <FaUsers className="text-white" />
+        </button>
+        {showPlayers && (
+          <div className="absolute top-20 right-4 bg-white/10 backdrop-blur-md rounded-lg p-4 z-10">
+            <h3 className="text-white font-bold mb-2">
+              Players ({players.length})
+            </h3>
+            <ul className="space-y-1">
+              {players.map((player, i) => (
+                <li key={i} className="text-white text-sm">
+                  {player}
+                </li>
+              ))}
+              {players.length === 0 && (
+                <li className="text-white/50 text-sm italic">
+                  No other players
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
       </header>
-      
+
       {error && (
         <div className="mb-4 bg-red-500/20 text-white p-3 rounded-lg text-center">
           {error}
         </div>
       )}
-      
+
       <div className="flex-1 flex flex-col items-center justify-center">
         <div className="w-full max-w-md">
-          <CardDeck 
-            cards={cards} 
+          <CardDeck
+            cards={cards}
             onFavoriteCard={handleFavoriteCard}
             isUserLoggedIn={isUserLoggedIn}
           />
         </div>
       </div>
-      
+
       {/* Login prompt modal */}
       {showLoginPrompt && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">

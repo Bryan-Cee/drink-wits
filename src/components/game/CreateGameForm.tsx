@@ -1,63 +1,65 @@
-import { useState } from 'react';
-import { FaPlus, FaTimes, FaUsers, FaDice, FaShare } from 'react-icons/fa';
-import toast from 'react-hot-toast';
+"use client";
+
+import { useState } from "react";
+import { useForm, useFieldArray, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { FaTrash, FaPlus, FaCopy, FaCheck } from "react-icons/fa";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+import { createGameSchema, CreateGameFormValues } from "@/lib/validation/create-game-schema";
 
 interface CreateGameFormProps {
   onCreateGame: (gameName: string, players: string[]) => Promise<{ joinCode: string }>;
 }
 
 export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
-  const [gameName, setGameName] = useState('');
-  const [players, setPlayers] = useState<string[]>(['']);
+  const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [joinCode, setJoinCode] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
-  const addPlayer = () => {
-    setPlayers([...players, '']);
-  };
+  const {
+    control,
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<CreateGameFormValues>({
+    resolver: yupResolver(createGameSchema),
+    defaultValues: {
+      gameName: "",
+      players: [""],
+    },
+  });
 
-  const removePlayer = (index: number) => {
-    if (players.length === 1) {
-      toast.error('At least one player is required');
-      return;
-    }
-    
-    const newPlayers = [...players];
-    newPlayers.splice(index, 1);
-    setPlayers(newPlayers);
-  };
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: "players",
+  });
 
-  const handlePlayerChange = (index: number, value: string) => {
-    const newPlayers = [...players];
-    newPlayers[index] = value;
-    setPlayers(newPlayers);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate inputs
-    if (!gameName.trim()) {
-      toast.error('Game name is required');
-      return;
-    }
-    
-    // Filter out empty player names
-    const validPlayers = players.filter(player => player.trim() !== '');
-    
-    if (validPlayers.length === 0) {
-      toast.error('At least one player is required');
-      return;
-    }
-    
+  const onSubmit = async (data: CreateGameFormValues) => {
     try {
       setIsCreating(true);
-      const result = await onCreateGame(gameName, validPlayers);
+      // Filter out empty player names
+      const filteredPlayers = data.players.filter(player => player.trim() !== "");
+      
+      if (filteredPlayers.length === 0) {
+        toast.error("At least one player is required");
+        setIsCreating(false);
+        return;
+      }
+
+      const result = await onCreateGame(data.gameName, filteredPlayers);
       setJoinCode(result.joinCode);
-      toast.success('Game created successfully!');
+      
+      // Store the first player name in session storage for game navigation
+      if (filteredPlayers.length > 0) {
+        sessionStorage.setItem('playerName', filteredPlayers[0]);
+      }
+      
+      toast.success("Game created successfully!");
     } catch (error) {
-      console.error('Failed to create game:', error);
-      toast.error('Failed to create game');
+      toast.error("Failed to create game");
+      console.error(error);
     } finally {
       setIsCreating(false);
     }
@@ -66,119 +68,122 @@ export default function CreateGameForm({ onCreateGame }: CreateGameFormProps) {
   const copyJoinLink = () => {
     if (!joinCode) return;
     
-    const joinUrl = `${window.location.origin}/game/join?code=${joinCode}`;
-    navigator.clipboard.writeText(joinUrl);
-    toast.success('Join link copied to clipboard!');
+    const url = `${window.location.origin}/game/join?code=${joinCode}`;
+    navigator.clipboard.writeText(url);
+    setCopied(true);
+    toast.success("Join link copied to clipboard!"); // This toast is not working
+    
+    setTimeout(() => {
+      setCopied(false);
+    }, 2000);
   };
 
   return (
     <div className="w-full max-w-md mx-auto">
-      {!joinCode ? (
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-6">Create a Game</h2>
-          
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="gameName" className="block text-sm font-medium text-gray-700 mb-1">
-                Game Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FaDice className="text-gray-400" />
-                </div>
-                <input
-                  id="gameName"
-                  type="text"
-                  value={gameName}
-                  onChange={(e) => setGameName(e.target.value)}
-                  className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                  placeholder="Fun Friday Night"
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Players
-              </label>
-              
-              <div className="space-y-2">
-                {players.map((player, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FaUsers className="text-gray-400" />
-                      </div>
-                      <input
-                        type="text"
-                        value={player}
-                        onChange={(e) => handlePlayerChange(index, e.target.value)}
-                        className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
-                        placeholder={`Player ${index + 1}`}
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removePlayer(index)}
-                      className="p-2 rounded-full text-red-500 hover:bg-red-50"
-                    >
-                      <FaTimes />
-                    </button>
-                  </div>
-                ))}
-                
-                <button
-                  type="button"
-                  onClick={addPlayer}
-                  className="flex items-center gap-2 text-sm text-indigo-600 hover:text-indigo-800"
-                >
-                  <FaPlus /> Add Player
-                </button>
-              </div>
-            </div>
-            
-            <div>
-              <button
-                type="submit"
-                disabled={isCreating}
-                className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isCreating ? 'Creating...' : 'Create Game'}
-              </button>
-            </div>
-          </form>
+      {joinCode ? (
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <h2 className="text-xl font-bold mb-4">Game Created!</h2>
+          <p className="mb-2">Share this code with your friends:</p>
+          <div className="flex items-center mb-4">
+            <span className="font-mono bg-gray-100 dark:bg-gray-700 p-2 rounded flex-1 text-center text-lg">
+              {joinCode}
+            </span>
+            <button
+              onClick={copyJoinLink}
+              className="ml-2 p-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+              aria-label="Copy join link"
+            >
+              {copied ? <FaCheck /> : <FaCopy />}
+            </button>
+          </div>
+          <div className="flex justify-between">
+            <button
+              onClick={() => {
+                const playerName = sessionStorage.getItem('playerName') || 'Anonymous';
+                router.push(`/game/play?code=${joinCode}&player=${encodeURIComponent(playerName)}`);
+              }}
+              className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600 transition-colors"
+            >
+              Start Game
+            </button>
+          </div>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center">
-              <FaShare className="text-green-600 text-xl" />
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+          <div className="mb-4">
+            <label htmlFor="gameName" className="block text-sm font-medium mb-1">
+              Game Name
+            </label>
+            <input
+              id="gameName"
+              {...register("gameName")}
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter game name"
+            />
+            {errors.gameName && (
+              <p className="text-red-500 text-sm mt-1">{errors.gameName.message}</p>
+            )}
           </div>
           
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Game Created!</h2>
-          <p className="text-gray-600 mb-6">Share this join code with your friends:</p>
-          
-          <div className="bg-gray-100 p-4 rounded-lg mb-4">
-            <p className="text-2xl font-mono tracking-wider">{joinCode}</p>
+          <div className="mb-4">
+            <label className="block text-sm font-medium mb-2">Players</label>
+            {fields.map((field, index) => (
+              <div key={field.id} className="flex mb-2">
+                <input
+                  {...register(`players.${index}`)}
+                  placeholder={`Player ${index + 1}`}
+                  className="flex-1 p-2 border rounded dark:bg-gray-700 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => remove(index)}
+                  disabled={fields.length <= 1}
+                  className={`ml-2 p-2 rounded ${
+                    fields.length <= 1
+                      ? "bg-gray-300 dark:bg-gray-600 cursor-not-allowed"
+                      : "bg-red-500 text-white hover:bg-red-600"
+                  } transition-colors`}
+                  aria-label="Remove player"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+            ))}
+            {errors.players && typeof errors.players.message === 'string' && (
+              <p className="text-red-500 text-sm mb-2">{errors.players.message}</p>
+            )}
+            
+            {fields.map((field, index) => (
+              errors.players?.[index] && (
+                <p key={`${field.id}-error`} className="text-red-500 text-sm mb-1">
+                  Player {index + 1}: {errors.players[index]?.message}
+                </p>
+              )
+            ))}
+            
+            <button
+              type="button"
+              onClick={() => append("")}
+              disabled={fields.length >= 10}
+              className={`flex items-center text-sm ${
+                fields.length >= 10
+                  ? "text-gray-400 dark:text-gray-500 cursor-not-allowed"
+                  : "text-blue-500 hover:text-blue-700"
+              }`}
+            >
+              <FaPlus className="mr-1" />
+              Add Player
+            </button>
           </div>
           
           <button
-            onClick={copyJoinLink}
-            className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            type="submit"
+            disabled={isCreating}
+            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600 disabled:bg-blue-300 disabled:cursor-not-allowed transition-colors"
           >
-            Copy Join Link
+            {isCreating ? "Creating..." : "Create Game"}
           </button>
-          
-          <div className="mt-4">
-            <a
-              href={`/game/play?code=${joinCode}`}
-              className="block w-full text-center py-2 px-4 border border-indigo-600 rounded-md shadow-sm text-indigo-600 bg-white hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            >
-              Start Playing
-            </a>
-          </div>
-        </div>
+        </form>
       )}
     </div>
   );

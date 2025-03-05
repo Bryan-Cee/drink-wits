@@ -42,7 +42,7 @@ export default function CreateGamePage() {
       if (!response.ok) {
         throw new Error('Failed to create game');
       }
-      
+
       return await response.json();
     } catch (error) {
       console.error('Error creating game:', error);

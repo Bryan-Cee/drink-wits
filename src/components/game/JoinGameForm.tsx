@@ -1,50 +1,53 @@
-import { useState } from 'react';
+'use client';
+
+import { useEffect } from 'react';
 import { FaKey, FaUser, FaArrowRight } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { joinGameSchema } from '@/lib/validation/join-game-schema';
 
 interface JoinGameFormProps {
   onJoinGame: (joinCode: string, playerName: string) => Promise<void>;
 }
 
+type FormValues = {
+  joinCode: string;
+  playerName: string;
+};
+
 export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
-  const [joinCode, setJoinCode] = useState('');
-  const [playerName, setPlayerName] = useState('');
-  const [isJoining, setIsJoining] = useState(false);
+  const { 
+    register, 
+    handleSubmit, 
+    setValue, 
+    formState: { errors, isSubmitting } 
+  } = useForm<FormValues>({
+    resolver: yupResolver(joinGameSchema),
+    defaultValues: {
+      joinCode: '',
+      playerName: '',
+    }
+  });
 
   // Check if there's a join code in the URL
-  useState(() => {
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       const codeFromUrl = params.get('code');
       if (codeFromUrl) {
-        setJoinCode(codeFromUrl);
+        setValue('joinCode', codeFromUrl);
       }
     }
-  });
+  }, [setValue]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Basic validation
-    if (!joinCode.trim()) {
-      toast.error('Join code is required');
-      return;
-    }
-    
-    if (!playerName.trim()) {
-      toast.error('Player name is required');
-      return;
-    }
-    
+  const onSubmit = async (data: FormValues) => {
     try {
-      setIsJoining(true);
-      await onJoinGame(joinCode, playerName);
+      await onJoinGame(data.joinCode, data.playerName);
       toast.success('Joined the game!');
     } catch (error) {
       console.error('Failed to join game:', error);
       toast.error('Failed to join game');
-    } finally {
-      setIsJoining(false);
     }
   };
 
@@ -52,7 +55,7 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
     <div className="w-full max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Join a Game</h2>
       
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div>
           <label htmlFor="joinCode" className="block text-sm font-medium text-gray-700 mb-1">
             Join Code
@@ -64,12 +67,14 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
             <input
               id="joinCode"
               type="text"
-              value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
               className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="Enter join code"
+              {...register('joinCode')}
             />
           </div>
+          {errors.joinCode && (
+            <p className="mt-1 text-sm text-red-600">{errors.joinCode.message}</p>
+          )}
         </div>
         
         <div>
@@ -83,21 +88,23 @@ export default function JoinGameForm({ onJoinGame }: JoinGameFormProps) {
             <input
               id="playerName"
               type="text"
-              value={playerName}
-              onChange={(e) => setPlayerName(e.target.value)}
               className="pl-10 block w-full rounded-md border border-gray-300 shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               placeholder="What should we call you?"
+              {...register('playerName')}
             />
           </div>
+          {errors.playerName && (
+            <p className="mt-1 text-sm text-red-600">{errors.playerName.message}</p>
+          )}
         </div>
         
         <div>
           <button
             type="submit"
-            disabled={isJoining}
+            disabled={isSubmitting}
             className="w-full flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isJoining ? (
+            {isSubmitting ? (
               'Joining...'
             ) : (
               <>
