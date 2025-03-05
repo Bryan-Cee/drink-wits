@@ -7,6 +7,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { FaArrowLeft, FaHeart, FaUsers } from 'react-icons/fa';
+import { Card } from '@/lib/store/game-store';
 
 // Sample cards for demo - will be replaced with API data
 const SAMPLE_CARDS = [
@@ -93,8 +94,15 @@ function GamePlayContent() {
         const data = await response.json();
         console.log('Fetched cards:', data);
 
+        // Create an interface for the API response data
+        interface CardApiResponse {
+          id: string;
+          type: string;
+          content: string;
+        }
+
         // Transform the API data to match our Card interface
-        const formattedCards = data.map((card: any) => ({
+        const formattedCards = data.map((card: CardApiResponse) => ({
           id: card.id || `temp-${Math.random().toString(36).substr(2, 9)}`,
           type: card.type === 'question' ? 'question' : 'dare',
           content: card.content,

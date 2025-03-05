@@ -14,11 +14,11 @@
         "noUnusedVariables": "error"
       },
       "suspicious": {
-        "noExplicitAny": "off",
-        "noImplicitAnyLet": "off"
+        "noExplicitAny": "error",
+        "noImplicitAnyLet": "error"
       },
       "style": {
-        "noNonNullAssertion": "off"
+        "noNonNullAssertion": "error"
       },
       "a11y": {
         "useKeyWithClickEvents": "off",

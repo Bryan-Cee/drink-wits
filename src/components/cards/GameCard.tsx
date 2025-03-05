@@ -1,27 +1,27 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { motion } from "framer-motion";
-import { FaHeart, FaRegHeart } from "react-icons/fa";
-import { useFavorites } from "@/lib/hooks/use-favorites";
-import { useAuth } from "@/lib/auth/auth-context";
+import { useAuth } from '@/lib/auth/auth-context';
+import { useFavorites } from '@/lib/hooks/use-favorites';
+import { motion } from 'framer-motion';
+import { useState } from 'react';
+import { FaHeart, FaRegHeart } from 'react-icons/fa';
 
 interface CardProps {
   id: string;
   content: string;
-  onSwipe: (direction: "left" | "right") => void;
+  onSwipe: (direction: 'left' | 'right') => void;
   isFavorited?: boolean;
 }
 
 export default function GameCard({ id, content, onSwipe, isFavorited = false }: CardProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartX, setDragStartX] = useState(0);
-  const [dragDirection, setDragDirection] = useState<"left" | "right" | null>(null);
+  const [dragDirection, setDragDirection] = useState<'left' | 'right' | null>(null);
   const [dragDistance, setDragDistance] = useState(0);
   const [initialRender, setInitialRender] = useState(true);
   const { user } = useAuth();
   const { toggleFavorite, isFavorite } = useFavorites();
-  
+
   // Initialize favorite state from props, but then track it locally
   const [favorited, setFavorited] = useState(isFavorited);
 
@@ -31,9 +31,9 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
   const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
     setIsDragging(true);
     setInitialRender(false);
-    
+
     // Get starting X position
-    if ("touches" in e) {
+    if ('touches' in e) {
       setDragStartX(e.touches[0].clientX);
     } else {
       setDragStartX(e.clientX);
@@ -42,23 +42,23 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
 
   const handleDragMove = (e: React.MouseEvent | React.TouchEvent) => {
     if (!isDragging) return;
-    
+
     // Calculate distance moved
-    let currentX;
-    if ("touches" in e) {
+    let currentX: number;
+    if ('touches' in e) {
       currentX = e.touches[0].clientX;
     } else {
       currentX = e.clientX;
     }
-    
+
     const distance = currentX - dragStartX;
     setDragDistance(distance);
-    
+
     // Set drag direction based on distance
     if (distance > 20) {
-      setDragDirection("right");
+      setDragDirection('right');
     } else if (distance < -20) {
-      setDragDirection("left");
+      setDragDirection('left');
     } else {
       setDragDirection(null);
     }
@@ -67,16 +67,16 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
   const handleDragEnd = () => {
     if (isDragging) {
       const absDragDistance = Math.abs(dragDistance);
-      
+
       // If dragged far enough, trigger swipe
       if (absDragDistance > SWIPE_THRESHOLD) {
         if (dragDistance > 0) {
-          onSwipe("right");
+          onSwipe('right');
         } else {
-          onSwipe("left");
+          onSwipe('left');
         }
       }
-      
+
       // Reset drag state
       setIsDragging(false);
       setDragDistance(0);
@@ -87,7 +87,7 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
   const handleHeartClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    
+
     if (user) {
       const success = await toggleFavorite(id);
       if (success) {
@@ -98,10 +98,10 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
 
   // Calculate rotation based on drag distance
   const rotation = isDragging ? (dragDistance / SWIPE_THRESHOLD) * MAX_ROTATION : 0;
-  
+
   // Determine card position
   const x = isDragging ? dragDistance : 0;
-  
+
   // Determine scale based on dragging state
   const scale = isDragging ? 1.05 : 1;
 
@@ -116,12 +116,12 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
         x,
         rotate: rotation,
         scale,
-        opacity: 1
+        opacity: 1,
       }}
       transition={{
-        type: "spring",
+        type: 'spring',
         stiffness: 500,
-        damping: 50
+        damping: 50,
       }}
       onMouseDown={handleDragStart}
       onMouseMove={handleDragMove}
@@ -136,39 +136,37 @@ export default function GameCard({ id, content, onSwipe, isFavorited = false }: 
         <div className="flex-1 mb-4 text-xl text-gray-700 dark:text-gray-200 font-medium flex items-center justify-center text-center">
           {content}
         </div>
-        
+
         {/* Favorite button */}
-        <button 
+        <button
           onClick={handleHeartClick}
           className="absolute top-4 right-4 p-2 rounded-full"
           disabled={!user}
         >
-          <HeartIcon 
+          <HeartIcon
             className={`text-xl ${
-              favorited || isFavorite(id) 
-                ? "text-red-500" 
-                : "text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
-            }`} 
+              favorited || isFavorite(id)
+                ? 'text-red-500'
+                : 'text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400'
+            }`}
           />
         </button>
       </div>
-      
+
       {/* Swipe indicators */}
       {isDragging && dragDirection && (
-        <div 
+        <div
           className={`absolute inset-0 flex items-center justify-center pointer-events-none
-            ${dragDirection === "left" ? "bg-red-500/10" : "bg-green-500/10"}`
-          }
+            ${dragDirection === 'left' ? 'bg-red-500/10' : 'bg-green-500/10'}`}
         >
-          <div 
+          <div
             className={`text-4xl font-bold
-              ${dragDirection === "left" ? "text-red-500" : "text-green-500"}`
-            }
+              ${dragDirection === 'left' ? 'text-red-500' : 'text-green-500'}`}
           >
-            {dragDirection === "left" ? "SKIP" : "LIKE"}
+            {dragDirection === 'left' ? 'SKIP' : 'LIKE'}
           </div>
         </div>
       )}
     </motion.div>
   );
-} 
+}

@@ -1,15 +1,22 @@
 import { useState } from 'react';
-import { FaUser, FaEnvelope, FaLock, FaSignInAlt, FaUserPlus } from 'react-icons/fa';
 import toast from 'react-hot-toast';
+import { FaEnvelope, FaLock, FaSignInAlt, FaUser, FaUserPlus } from 'react-icons/fa';
+
+interface AuthFormData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
 interface AuthFormProps {
   mode: 'login' | 'register';
-  onSubmit: (data: any) => Promise<void>;
+  onSubmit: (data: AuthFormData) => Promise<void>;
   switchMode: () => void;
 }
 
 export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<AuthFormData>({
     name: '',
     email: '',
     password: '',
@@ -19,7 +26,7 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -27,30 +34,30 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Basic validation
     if (mode === 'register') {
       if (!formData.name.trim()) {
         toast.error('Name is required');
         return;
       }
-      
+
       if (formData.password !== formData.confirmPassword) {
         toast.error('Passwords do not match');
         return;
       }
     }
-    
+
     if (!formData.email.trim()) {
       toast.error('Email is required');
       return;
     }
-    
+
     if (!formData.password) {
       toast.error('Password is required');
       return;
     }
-    
+
     try {
       setIsLoading(true);
       await onSubmit(formData);
@@ -66,11 +73,14 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
       <h2 className="text-2xl font-bold text-center text-gray-800 dark:text-white mb-6">
         {mode === 'login' ? 'Sign In' : 'Create Account'}
       </h2>
-      
+
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === 'register' && (
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Name
             </label>
             <div className="relative">
@@ -89,9 +99,12 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
             </div>
           </div>
         )}
-        
+
         <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="email"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Email
           </label>
           <div className="relative">
@@ -109,9 +122,12 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
             />
           </div>
         </div>
-        
+
         <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <label
+            htmlFor="password"
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+          >
             Password
           </label>
           <div className="relative">
@@ -129,10 +145,13 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
             />
           </div>
         </div>
-        
+
         {mode === 'register' && (
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Confirm Password
             </label>
             <div className="relative">
@@ -151,7 +170,7 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
             </div>
           </div>
         )}
-        
+
         <div>
           <button
             type="submit"
@@ -178,18 +197,16 @@ export default function AuthForm({ mode, onSubmit, switchMode }: AuthFormProps) 
           </button>
         </div>
       </form>
-      
+
       <div className="mt-4 text-center">
         <button
           type="button"
           onClick={switchMode}
           className="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
         >
-          {mode === 'login'
-            ? "Don't have an account? Sign up"
-            : "Already have an account? Sign in"}
+          {mode === 'login' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
         </button>
       </div>
     </div>
   );
-} 
+}

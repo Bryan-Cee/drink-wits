@@ -1,54 +1,44 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "react-hot-toast";
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import Footer from '@/components/ui/Footer';
+import Navbar from '@/components/ui/Navbar';
 import { AuthProvider } from '@/lib/auth/auth-context';
 import { ThemeProvider } from '@/lib/theme/theme-context';
-import Navbar from '@/components/ui/Navbar';
-import Footer from '@/components/ui/Footer';
-import Script from "next/script";
-import dynamic from "next/dynamic";
+import Script from 'next/script';
+import { Toaster } from 'react-hot-toast';
+import ClientOfflineIndicator from '@/components/ui/ClientOfflineIndicator';
+import ClientAgeVerification from '@/components/ui/ClientAgeVerification';
 
-const OfflineIndicator = dynamic(() => import('@/components/ui/OfflineIndicator'), { 
-  ssr: false 
-});
-
-// Dynamically import AgeVerification to avoid hydration issues
-const AgeVerification = dynamic(() => import('@/components/ui/AgeVerification'), {
-  ssr: false
-});
-
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 // Define viewport separately as required by Next.js 14.2.0
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#000000"
+  themeColor: '#000000',
 };
 
 export const metadata: Metadata = {
-  title: "Drink Wits - The Social Drinking Game",
-  description: "A drinking game with dares and questions to play with friends",
-  manifest: "/manifest.json",
+  title: 'Drink Wits - The Social Drinking Game',
+  description: 'A drinking game with dares and questions to play with friends',
+  manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
-    title: "Drink Wits",
+    statusBarStyle: 'default',
+    title: 'Drink Wits',
   },
   formatDetection: {
     telephone: false,
   },
   icons: {
     icon: [
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [
-      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
@@ -79,10 +69,10 @@ export default function RootLayout({
                 <Toaster position="top-center" />
               </main>
               <Footer />
-              <OfflineIndicator />
+              <ClientOfflineIndicator />
             </div>
             {/* Age verification modal */}
-            <AgeVerification />
+            <ClientAgeVerification />
           </AuthProvider>
         </ThemeProvider>
         <Script src="/register-sw.js" strategy="lazyOnload" />
