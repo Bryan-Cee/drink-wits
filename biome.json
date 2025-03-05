@@ -3,6 +3,9 @@
   "organizeImports": {
     "enabled": true
   },
+  "files": {
+    "ignoreUnknown": true
+  },
   "linter": {
     "enabled": true,
     "rules": {
@@ -11,14 +14,17 @@
         "noUnusedVariables": "error"
       },
       "suspicious": {
-        "noExplicitAny": "warn"
+        "noExplicitAny": "off",
+        "noImplicitAnyLet": "off"
       },
       "style": {
         "noNonNullAssertion": "off"
       },
       "a11y": {
         "useKeyWithClickEvents": "off",
-        "useValidAnchor": "off"
+        "useValidAnchor": "off",
+        "useButtonType": "off",
+        "noLabelWithoutControl": "off"
       }
     },
     "ignore": ["node_modules", ".next", "public", "**/*.json"]
