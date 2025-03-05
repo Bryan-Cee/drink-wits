@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function OfflineIndicator() {
   const [isOffline, setIsOffline] = useState<boolean>(false);
@@ -31,4 +31,4 @@ export default function OfflineIndicator() {
       You are currently offline. Some features may be unavailable.
     </div>
   );
-} 
+}

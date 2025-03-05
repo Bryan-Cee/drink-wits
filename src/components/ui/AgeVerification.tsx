@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { FaExclamationTriangle } from 'react-icons/fa';
 
 export default function AgeVerification() {
@@ -51,17 +51,20 @@ export default function AgeVerification() {
                 <FaExclamationTriangle className="text-red-600 dark:text-red-300 text-2xl" />
               </div>
             </div>
-            
-            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">Age Verification</h2>
-            
+
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-white">
+              Age Verification
+            </h2>
+
             <p className="mb-6 text-gray-700 dark:text-gray-300">
-              This application contains content related to drinking games and is intended for adults only.
+              This application contains content related to drinking games and is intended for adults
+              only.
             </p>
-            
+
             <p className="font-bold mb-6 text-gray-800 dark:text-gray-200">
               Are you at least 18 years of age?
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 onClick={handleVerify}
@@ -69,7 +72,7 @@ export default function AgeVerification() {
               >
                 Yes, I am 18 or older
               </button>
-              
+
               <button
                 onClick={handleReject}
                 className="px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-md font-medium transition-colors"
@@ -77,13 +80,14 @@ export default function AgeVerification() {
                 No, I am under 18
               </button>
             </div>
-            
+
             <p className="mt-6 text-sm text-gray-500 dark:text-gray-400">
-              By clicking "Yes", you confirm that you are at least 18 years old and accept our Terms of Service and Privacy Policy.
+              By clicking "Yes", you confirm that you are at least 18 years old and accept our Terms
+              of Service and Privacy Policy.
             </p>
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
   );
-} 
+}
